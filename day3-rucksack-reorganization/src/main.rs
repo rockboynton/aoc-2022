@@ -25,10 +25,15 @@ fn main() {
     let rucksacks = fs::read_to_string(file_path)
         .expect("Should have been able to read the file");
 
+    part_1(&rucksacks);
+    part_2(&rucksacks);
+}
+
+fn part_1(rucksacks: &str) {
     let mut shared_items = Vec::new();
     for rucksack in rucksacks.lines() {
         let (compartment_1, compartment_2) = &rucksack.split_at(rucksack.len() / 2);
-        
+
         let mut compartment_1_set = HashSet::new();
         let mut compartment_2_set = HashSet::new();
         for (c1_item, c2_item) in compartment_1.chars().zip(compartment_2.chars()) {
@@ -46,8 +51,31 @@ fn main() {
             }
         }
     }
-
     println!("The sum of the priorities of the item types that appear in both compartments of each rucksack is: {}",
         shared_items.iter().sum::<u32>()
+    )
+}
+
+fn part_2(rucksacks: &str) {
+    let mut badges = Vec::new();
+    let mut rucksack_iter = rucksacks.lines().peekable();
+    while rucksack_iter.peek().is_some() {
+        let elves: Vec<HashSet<char>> = vec![
+            rucksack_iter.next().unwrap().chars().collect(),
+            rucksack_iter.next().unwrap().chars().collect(),
+            rucksack_iter.next().unwrap().chars().collect(),
+        ];
+
+        let badge = elves.into_iter().reduce(move |accum, rucksack| {
+            accum
+            .intersection(&rucksack)
+            .copied()
+            .collect()
+        }).unwrap();
+
+        badges.push(badge.iter().next().unwrap().priority());
+    }
+    println!("The sum of the priorities of the item type that corresponds to the badges of each three-Elf group is: {}",
+        badges.iter().sum::<u32>()
     )
 }
