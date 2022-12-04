@@ -2,6 +2,8 @@ use std::env;
 use std::fs;
 use std::collections::HashSet;
 
+use itertools::Itertools;
+
 trait Priority {
     const PRIORITY_LOWERCASE_A: u32 = 1;
     const PRIORITY_UPPERCASE_A: u32 = 27;
@@ -58,20 +60,11 @@ fn part_1(rucksacks: &str) {
 
 fn part_2(rucksacks: &str) {
     let mut badges = Vec::new();
-    let mut rucksack_iter = rucksacks.lines().peekable();
-    while rucksack_iter.peek().is_some() {
-        let elves: Vec<HashSet<char>> = vec![
-            rucksack_iter.next().unwrap().chars().collect(),
-            rucksack_iter.next().unwrap().chars().collect(),
-            rucksack_iter.next().unwrap().chars().collect(),
-        ];
-
-        let badge = elves.into_iter().reduce(move |accum, rucksack| {
-            accum
-            .intersection(&rucksack)
-            .copied()
-            .collect()
-        }).unwrap();
+    for elves in &rucksacks.lines().chunks(3) {
+        let badge = elves
+            .map(|items_str| items_str.chars().collect::<HashSet<char>>())
+            .reduce(|accum, rucksack| &accum & &rucksack)
+            .unwrap();
 
         badges.push(badge.iter().next().unwrap().priority());
     }
