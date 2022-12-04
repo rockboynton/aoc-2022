@@ -1,6 +1,6 @@
 use std::env;
 use std::fs;
-use std::ops::Range;
+use std::ops::RangeInclusive;
 
 use itertools::Itertools;
 
@@ -23,7 +23,7 @@ fn main() {
                     .collect_tuple()
                     .unwrap();
 
-                Range { start, end }
+                start..=end
             })
             .collect_tuple()
             .unwrap();
@@ -41,10 +41,10 @@ fn main() {
     println!("Number of assignment pairs where one range at least partially contains the other: {overlapping_pairs}");
 }
 
-fn fully_overlapping(x: &Range<u32>, y: &Range<u32>) -> bool {
-    (x.start <= y.start && x.end >= y.end) || (y.start <= x.start && y.end >= x.end)
+fn fully_overlapping(x: &RangeInclusive<u32>, y: &RangeInclusive<u32>) -> bool {
+    (x.start() <= y.start() && x.end() >= y.end()) || (y.start() <= x.start() && y.end() >= x.end())
 }
 
-fn overlapping(x: &Range<u32>, y: &Range<u32>) -> bool {
-    x.start <= y.end && y.start <= x.end
+fn overlapping(x: &RangeInclusive<u32>, y: &RangeInclusive<u32>) -> bool {
+    x.start() <= y.end() && y.start() <= x.end()
 }
