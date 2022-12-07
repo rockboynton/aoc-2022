@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::env;
 use std::fs;
 
@@ -20,8 +21,8 @@ fn chars_to_end_of_marker(datastream_buffer: String, num_distinct: usize) -> u32
         .enumerate()
         .find(|(_i, window)| {
             window.iter()
-                .enumerate()
-                .all(|(i, c)| !window[..i].contains(c))
+                .collect::<HashSet<&char>>()
+                .len() == window.len()
         }).unwrap()
         .0 as u32 + num_distinct as u32
 }
