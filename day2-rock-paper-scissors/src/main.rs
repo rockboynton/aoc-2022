@@ -1,13 +1,10 @@
+use std::collections::HashMap;
 use std::env;
 use std::fs;
-use std::collections::HashMap;
 
 use itertools::Itertools;
 
-#[derive(Hash)]
-#[derive(Eq)]
-#[derive(PartialEq)]
-#[derive(Clone)]
+#[derive(Hash, Eq, PartialEq, Clone)]
 enum Shape {
     Rock = 1,
     Paper = 2,
@@ -35,7 +32,7 @@ impl Hand {
                 shape: Shape::Scissors,
                 score: 3,
             },
-            s => panic!("Unexpected shape string: {s}")
+            s => panic!("Unexpected shape string: {s}"),
         }
     }
 }
@@ -44,8 +41,8 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let file_path = &args[1];
 
-    let strategy_guide = fs::read_to_string(file_path)
-        .expect("Should have been able to read the file");
+    let strategy_guide =
+        fs::read_to_string(file_path).expect("Should have been able to read the file");
 
     let winners: HashMap<Shape, Shape> = HashMap::from([
         (Shape::Rock, Shape::Paper),
@@ -65,20 +62,22 @@ fn main() {
 fn part_1(strategy_guide: &str, winners: &HashMap<Shape, Shape>) -> u64 {
     let mut total_score = 0;
     for game in strategy_guide.lines() {
-        let (opponent_hand, my_hand) = &game.split(' ')
+        let (opponent_hand, my_hand) = &game
+            .split(' ')
             .collect::<Vec<&str>>()
             .iter()
             .map(|s| Hand::new(s))
             .collect_tuple()
             .unwrap();
 
-        total_score += my_hand.score as u64 + if winners[&opponent_hand.shape] == my_hand.shape {
-            6
-        } else if opponent_hand.shape == my_hand.shape {
-            3
-        } else {
-            0
-        }
+        total_score += my_hand.score as u64
+            + if winners[&opponent_hand.shape] == my_hand.shape {
+                6
+            } else if opponent_hand.shape == my_hand.shape {
+                3
+            } else {
+                0
+            }
     }
 
     total_score
@@ -95,7 +94,8 @@ fn part_2(strategy_guide: &str, winners: &HashMap<Shape, Shape>) -> u64 {
 
     let mut total_score = 0;
     for game in strategy_guide.lines() {
-        let (opponent_hand, my_hand) = &game.split(' ')
+        let (opponent_hand, my_hand) = &game
+            .split(' ')
             .collect::<Vec<&str>>()
             .iter()
             .map(|s| Hand::new(s))

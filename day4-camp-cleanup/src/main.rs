@@ -8,8 +8,8 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let file_path = &args[1];
 
-    let section_assignments = fs::read_to_string(file_path)
-        .expect("Should have been able to read the file");
+    let section_assignments =
+        fs::read_to_string(file_path).expect("Should have been able to read the file");
 
     let mut fully_overlapping_pairs = 0;
     let mut overlapping_pairs = 0;

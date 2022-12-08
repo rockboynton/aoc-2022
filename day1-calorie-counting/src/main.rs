@@ -1,14 +1,14 @@
-use std::env;
-use std::fs;
 use std::cmp;
 use std::collections::BinaryHeap;
+use std::env;
+use std::fs;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     let file_path = &args[1];
 
-    let elf_inventory = fs::read_to_string(file_path)
-        .expect("Should have been able to read the file");
+    let elf_inventory =
+        fs::read_to_string(file_path).expect("Should have been able to read the file");
 
     // part 1
     let max = get_max_inventory(&elf_inventory);
@@ -19,11 +19,10 @@ fn main() {
     println!("Top 3 elves have a total max inventory of {top_3}");
 }
 
-
 fn get_max_inventory(elf_inventory: &str) -> u32 {
     let mut max = 0;
     let mut acc = 0u32;
-    for line in elf_inventory.lines(){
+    for line in elf_inventory.lines() {
         if line.is_empty() {
             max = cmp::max(acc, max);
             acc = 0;

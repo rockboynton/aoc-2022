@@ -6,25 +6,29 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let file_path = &args[1];
 
-    let datastream_buffer = fs::read_to_string(file_path)
-        .expect("Should have been able to read the file");
+    let datastream_buffer =
+        fs::read_to_string(file_path).expect("Should have been able to read the file");
 
-    println!("solution to part 1: {}", chars_to_end_of_marker(datastream_buffer.clone(), 4));
-    println!("solution to part 2: {}", chars_to_end_of_marker(datastream_buffer, 14));
+    println!(
+        "solution to part 1: {}",
+        chars_to_end_of_marker(datastream_buffer.clone(), 4)
+    );
+    println!(
+        "solution to part 2: {}",
+        chars_to_end_of_marker(datastream_buffer, 14)
+    );
 }
 
-fn chars_to_end_of_marker(datastream_buffer: String, num_distinct: usize) -> u32{
+fn chars_to_end_of_marker(datastream_buffer: String, num_distinct: usize) -> u32 {
     datastream_buffer
         .chars()
         .collect::<Vec<char>>()
         .windows(num_distinct)
         .enumerate()
-        .find(|(_i, window)| {
-            window.iter()
-                .collect::<HashSet<&char>>()
-                .len() == window.len()
-        }).unwrap()
-        .0 as u32 + num_distinct as u32
+        .find(|(_i, window)| window.iter().collect::<HashSet<&char>>().len() == window.len())
+        .unwrap()
+        .0 as u32
+        + num_distinct as u32
 }
 
 #[cfg(test)]
@@ -61,4 +65,3 @@ mod tests {
             .for_each(|(k, v)| assert_eq!(chars_to_end_of_marker(k.to_string(), 14), *v as u32));
     }
 }
-

@@ -1,6 +1,6 @@
+use std::collections::HashSet;
 use std::env;
 use std::fs;
-use std::collections::HashSet;
 
 use itertools::Itertools;
 
@@ -24,8 +24,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let file_path = &args[1];
 
-    let rucksacks = fs::read_to_string(file_path)
-        .expect("Should have been able to read the file");
+    let rucksacks = fs::read_to_string(file_path).expect("Should have been able to read the file");
 
     part_1(&rucksacks);
     part_2(&rucksacks);

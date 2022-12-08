@@ -1,6 +1,6 @@
+use std::collections::HashMap;
 use std::env;
 use std::fs;
-use std::collections::HashMap;
 
 type Crate = String;
 
@@ -12,13 +12,11 @@ type Stack = Vec<Crate>;
 //     id: u32
 // }
 
-
 fn main() {
     let args: Vec<String> = env::args().collect();
     let file_path = &args[1];
 
-    let input = fs::read_to_string(file_path)
-        .expect("Should have been able to read the file");
+    let input = fs::read_to_string(file_path).expect("Should have been able to read the file");
 
     // for line in input.lines() {
     //     println!("{:?}", line);
@@ -28,13 +26,12 @@ fn main() {
 }
 
 fn crates_on_top_of_each_stack(input: String) {
-    let stacks_iter = input
-        .lines()
-        .rev()
-        .skip_while(|&line| !line.is_empty());
+    let stacks_iter = input.lines().rev().skip_while(|&line| !line.is_empty());
 
-    let mut stacks: HashMap<u32, Stack> = stacks_iter.clone()
-        .nth(1).unwrap()
+    let mut stacks: HashMap<u32, Stack> = stacks_iter
+        .clone()
+        .nth(1)
+        .unwrap()
         .split_whitespace()
         .map(|id| (id.parse::<u32>().unwrap(), Stack::new()))
         .collect();
@@ -48,14 +45,17 @@ fn crates_on_top_of_each_stack(input: String) {
         for (crate_column, i) in columns.chunks(4).zip(1u32..) {
             if !crate_column.iter().all(|c| c.is_whitespace()) {
                 // println!("line {line}\n column {i}\n val {}\n", crate_column.iter().collect::<String>());
-                stacks.get_mut(&(i as u32)).unwrap().push(crate_column.iter().collect());
+                stacks
+                    .get_mut(&(i as u32))
+                    .unwrap()
+                    .push(crate_column.iter().collect());
             }
         }
     }
 
     // dbg!(stacks);
 
-    let rearrangement_procedure= input
+    let rearrangement_procedure = input
         .lines()
         .skip_while(|line| !line.is_empty())
         .skip(1)
@@ -71,7 +71,7 @@ fn crates_on_top_of_each_stack(input: String) {
     let mut stacks_part_2 = stacks.clone();
     for (num_crates_to_move, origin, dest) in rearrangement_procedure {
         let mut multiple_moving_stack = Stack::new();
-        
+
         for _ in 0..num_crates_to_move {
             let moving_crate_1 = stacks.get_mut(&origin).unwrap().pop().unwrap();
             let moving_crate_2 = stacks_part_2.get_mut(&origin).unwrap().pop().unwrap();
@@ -91,8 +91,12 @@ fn crates_on_top_of_each_stack(input: String) {
 
 fn top_of_stack_string(mut stacks: HashMap<u32, Vec<String>>) -> String {
     (1..stacks.len() as u32 + 1)
-    .map(|i| stacks.get_mut(&i).unwrap().pop().unwrap())
-    .map(|crate_str| crate_str.chars().filter(|c| c.is_alphabetic()).collect::<String>())
-    .collect()
+        .map(|i| stacks.get_mut(&i).unwrap().pop().unwrap())
+        .map(|crate_str| {
+            crate_str
+                .chars()
+                .filter(|c| c.is_alphabetic())
+                .collect::<String>()
+        })
+        .collect()
 }
-
