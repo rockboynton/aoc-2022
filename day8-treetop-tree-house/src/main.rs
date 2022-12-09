@@ -47,28 +47,22 @@ impl Tree {
 
 
     fn scenic_score(&self, row: usize, col: usize, forest: &Forest) -> u32 {
-        // println!("*********************");
-        // dbg!(self);
         // all from left
         let mut left = forest.get(row).unwrap().iter()
             .take(col)
             .rev()
             .take_while(|tree| tree.height <= self.height)
-            // .inspect(|val| println!("left {val:?}"))
             .peekable();
         // all from right
         let mut right = forest.get(row).unwrap().iter().rev()
             .take(forest[0].len() - 1 - col)
             .rev()
-            // .inspect(|val| println!("right {val:?}"))
             .peekable();
         // all from bottom,
         let mut bottom = forest.iter().rev()
             .take(forest.len() - 1 - row)
             .map(|row| row.get(col).unwrap())
             .rev()
-            // .take_while(|tree| tree.height <= self.height)
-            // .inspect(|val| println!("bottom {val:?}"))
             .peekable();
 
         // all from top
@@ -76,73 +70,51 @@ impl Tree {
             .take(row)
             .map(|row| row.get(col).unwrap())
             .rev()
-            // .take_while(|tree| tree.height <= self.height)
-            // .inspect(|val| println!("top {val:?}"))
             .peekable();
 
         let mut left_scenic = 0;
-        // if left.clone().any(|val| val.height == self.height) {
-        //     left_scenic += 1;
-        // }
-        // left_scenic += left.take_while(|tree| tree.shorter_than(self)).count() as u32;
         while left.peek().is_some() {
             let tree = left.next().unwrap();
             if tree.shorter_than(self) {
                 left_scenic += 1;
-            } else if tree.same_height_as(self) || left.peek().is_none(){
+            } else if !tree.shorter_than(self) {
                 left_scenic += 1;
                 break;
             }
         }
-        // dbg!(left_scenic);
 
         let mut right_scenic = 0;
-        // if right.clone().any(|val| val.height == self.height) {
-        //     right_scenic += 1;
-        // }
-        // right_scenic += right.take_while(|tree| tree.shorter_than(self)).count() as u32;
         while right.peek().is_some() {
             let tree = right.next().unwrap();
             if tree.shorter_than(self) {
                 right_scenic += 1;
-            } else if tree.same_height_as(self) || right.peek().is_none() {
+            } else if !tree.shorter_than(self){
                 right_scenic += 1;
                 break;
             }
         }
-        // dbg!(right_scenic);
 
         let mut bottom_scenic = 0;
-        // if bottom.clone().any(|val| val.height == self.height) {
-        //     bottom_scenic += 1;
-        // }
-        // bottom_scenic += bottom.take_while(|tree| tree.shorter_than(self)).count() as u32;
         while bottom.peek().is_some() {
             let tree = bottom.next().unwrap();
             if tree.shorter_than(self) {
                 bottom_scenic += 1;
-            } else if tree.same_height_as(self) || bottom.peek().is_none() {
+            } else if !tree.shorter_than(self) {
                 bottom_scenic += 1;
                 break;
             }
         }
-        // dbg!(bottom_scenic);
 
         let mut top_scenic = 0;
-        // if top.clone().any(|val| val.height == self.height) {
-        //     top_scenic += 1;
-        // }
-        // top_scenic += top.take_while(|tree| tree.shorter_than(self)).count() as u32;
         while top.peek().is_some() {
             let tree = top.next().unwrap();
             if tree.shorter_than(self) {
                 top_scenic += 1;
-            } else if tree.same_height_as(self) || top.peek().is_none() {
+            } else if !tree.shorter_than(self) {
                 top_scenic += 1;
                 break;
             }
         }
-        // dbg!(top_scenic);
 
         left_scenic * right_scenic * top_scenic * bottom_scenic
     }
