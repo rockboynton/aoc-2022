@@ -17,7 +17,7 @@ enum Direction {
     Down
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Knot {
     coord: Coordinate,
     visited_coords: HashSet<Coordinate>,
@@ -116,7 +116,29 @@ fn solve_part1(series_of_motions: &String) -> Option<u32> {
 }
 
 fn solve_part2(series_of_motions: &String) -> Option<u32> {
-    Some(1)
+    let mut head: Knot = Knot::new(Coordinate{ x: 0, y: 0 });
+    let mut tails: Vec<Knot> = vec![Knot::new(Coordinate{ x: 0, y: 0 }); 9];
+    for motion in series_of_motions.lines() {
+        let (direction, num_steps) = motion.split_whitespace().collect_tuple()?;
+        let direction = match direction {
+            "L" => Direction::Left,
+            "R" => Direction::Right,
+            "U" => Direction::Up,
+            "D" => Direction::Down,
+            _ => unreachable!()
+        };
+        let num_steps = num_steps.parse().unwrap();
+        for _ in 0..num_steps {
+            head.go(direction, 1);
+            let mut leader = &head;
+            for tail in tails.iter_mut() {
+                tail.follow(leader);
+                leader = tail;
+            }
+        }
+    }
+
+    Some(tails.last().unwrap().visited_coords.len() as u32)
 }
 
 #[cfg(test)]
@@ -138,7 +160,23 @@ R 2";
         assert_eq!(part1, 13);
     }
 
+    #[test]
     fn test_solve_part2() {
+        let input = "R 4
+U 4
+L 3
+D 1
+R 4
+D 1
+L 5
+R 2";
+
+        let part2 = solve_part2(&input.to_string()).unwrap();
+        assert_eq!(part2, 1);
+    }
+
+    #[test]
+    fn test_solve_part2_larger() {
         let input = "R 5
 U 8
 L 8
@@ -149,7 +187,7 @@ L 25
 U 20";
 
         let part2 = solve_part2(&input.to_string()).unwrap();
-        assert_eq!(part2, 1);
+        assert_eq!(part2, 36);
     }
 
     #[test]
@@ -169,6 +207,26 @@ fn print_current_locs(head: &Knot, tail: &Knot) {
                 print!("H");
             } else if tail.coord == c {
                 print!("T");
+            } else {
+                print!(".");
+            }
+        }
+        println!();
+    }
+}
+
+fn print_current_multiple(head: &Knot, tails: &Vec<Knot>) {
+    for y in (0..6).rev() {
+        for x in 0..6 {
+            let c = Coordinate { x, y};
+            if head.coord == c {
+                print!("H");
+            } else if tails.iter().any(|tail| tail.coord == c) {
+                for (i, tail) in tails.iter().enumerate() {
+                    if tail.coord == c {
+                        print!("{i}");
+                    }
+                }
             } else {
                 print!(".");
             }
