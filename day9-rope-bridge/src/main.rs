@@ -93,31 +93,19 @@ fn main() {
     println!("solution to part 2: {part2}");
 }
 
-fn solve_part1(series_of_motions: &String) -> Option<u32> {
-    let mut head: Knot = Knot::new(Coordinate{ x: 0, y: 0 });
-    let mut tail: Knot = Knot::new(Coordinate{ x: 0, y: 0 });
-    for motion in series_of_motions.lines() {
-        let (direction, num_steps) = motion.split_whitespace().collect_tuple()?;
-        let direction = match direction {
-            "L" => Direction::Left,
-            "R" => Direction::Right,
-            "U" => Direction::Up,
-            "D" => Direction::Down,
-            _ => unreachable!()
-        };
-        let num_steps = num_steps.parse().unwrap();
-        for _ in 0..num_steps {
-            head.go(direction, 1);
-            tail.follow(&head);
-        }
-    }
-
-    Some(tail.visited_coords.len() as u32)
+fn solve_part1(series_of_motions: &str) -> Option<u32> {
+    let head: Knot = Knot::new(Coordinate{ x: 0, y: 0 });
+    let tails: Vec<Knot> = vec![Knot::new(Coordinate{ x: 0, y: 0 }); 1];
+    solve(series_of_motions, head, tails)
 }
 
-fn solve_part2(series_of_motions: &String) -> Option<u32> {
-    let mut head: Knot = Knot::new(Coordinate{ x: 0, y: 0 });
-    let mut tails: Vec<Knot> = vec![Knot::new(Coordinate{ x: 0, y: 0 }); 9];
+fn solve_part2(series_of_motions: &str) -> Option<u32> {
+    let head: Knot = Knot::new(Coordinate{ x: 0, y: 0 });
+    let tails: Vec<Knot> = vec![Knot::new(Coordinate{ x: 0, y: 0 }); 9];
+    solve(series_of_motions, head, tails)
+}
+
+fn solve(series_of_motions: &str, mut head: Knot, mut tails: Vec<Knot>) -> Option<u32> {
     for motion in series_of_motions.lines() {
         let (direction, num_steps) = motion.split_whitespace().collect_tuple()?;
         let direction = match direction {
@@ -137,7 +125,6 @@ fn solve_part2(series_of_motions: &String) -> Option<u32> {
             }
         }
     }
-
     Some(tails.last().unwrap().visited_coords.len() as u32)
 }
 
