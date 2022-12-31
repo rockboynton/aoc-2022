@@ -75,14 +75,15 @@ fn solve(input: &str) -> usize {
         let point_down = Point { x: sand_unit_in_motion.x, y: sand_unit_in_motion.y + 1 };
         let point_down_left = Point { x: sand_unit_in_motion.x - 1, y: sand_unit_in_motion.y + 1 };
         let point_down_right = Point { x: sand_unit_in_motion.x + 1, y: sand_unit_in_motion.y + 1 };
-        if !rocks.union(&sand_units_at_rest).contains(&point_down) {
+        if !rocks.contains(&point_down) {
             sand_unit_in_motion = point_down;
-        } else if !rocks.union(&sand_units_at_rest).contains(&point_down_left) {
+        } else if !rocks.contains(&point_down_left) {
             sand_unit_in_motion = point_down_left;
-        } else if !rocks.union(&sand_units_at_rest).contains(&point_down_right) {
+        } else if !rocks.contains(&point_down_right) {
             sand_unit_in_motion = point_down_right;
         } else {
-            sand_units_at_rest.insert(sand_unit_in_motion);
+            sand_units_at_rest.insert(sand_unit_in_motion.clone());
+            rocks.insert(sand_unit_in_motion);
             sand_unit_in_motion = origin.clone();
         }
     }
