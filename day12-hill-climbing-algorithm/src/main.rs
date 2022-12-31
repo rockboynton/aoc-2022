@@ -49,22 +49,22 @@ fn main() {
     let input =
         fs::read_to_string(file_path).expect("Should have been able to read the file");
 
-    let part1 = solve_part1(&input);
-    // let part2 = solve_part2(&series_of_motions).unwrap();
+    let part1 = solve(&input, false);
+    let part2 = solve(&input, true);
     println!("solution to part 1: {part1}");
-    // println!("solution to part 2: {part2}");
+    println!("solution to part 2: {part2}");
 }
 
-fn solve_part1(input: &str) -> usize {
+fn solve(input: &str, all_starts: bool) -> usize {
     let mut heightmap= Vec::new();
-    let mut start = (0, 0);
+    let mut starts = vec![(0, 0)];
     let mut end = (0, 0);
     for (row_idx, line) in input.lines().enumerate() {
         let mut row = Vec::new();
         for (col_idx, c) in line.chars().enumerate() {
             row.push(match c {
-                'S' => {
-                    start = (col_idx as i32, row_idx as i32);
+                'S' | 'a' if all_starts => {
+                    starts.push((col_idx as i32, row_idx as i32));
                     'a'
                 },
                 'E' => {
@@ -77,18 +77,23 @@ fn solve_part1(input: &str) -> usize {
         heightmap.push(row);
     }
 
-    let mut start = HeightPos::new(start.1, start.0, &heightmap).unwrap();
-    start.set_height('a');
+    let starts = starts.iter().map(|start| {
+        let mut height_pos = HeightPos::new(start.1, start.0, &heightmap).unwrap();
+        height_pos.set_height('a');
+        height_pos
+    });
     let mut end = HeightPos::new(end.1, end.0, &heightmap).unwrap();
     end.set_height('z');
 
-    let shortest_path = astar(
-        &start,
-        |pos| pos.successors(&heightmap),
-        |pos| pos.distance(&end),
-        |pos| *pos == end).unwrap();
-
-    shortest_path.1 as usize
+    starts.filter_map(|start| {
+        astar(
+            &start,
+            |pos| pos.successors(&heightmap),
+            |pos| pos.distance(&end),
+            |pos| *pos == end)
+    })
+    .map(|path| path.1)
+    .min().unwrap() as usize
 }
 
 #[cfg(test)]
@@ -99,7 +104,15 @@ mod tests {
     fn test_solve_part1() {
         let input = include_str!("../example.txt");
 
-        let part1 = solve_part1(&input.to_string());
+        let part1 = solve(&input.to_string(), false);
         assert_eq!(part1, 31);
+    }
+
+    #[test]
+    fn test_solve_part2() {
+        let input = include_str!("../example.txt");
+
+        let part1 = solve(&input.to_string(), true);
+        assert_eq!(part1, 29);
     }
 }
