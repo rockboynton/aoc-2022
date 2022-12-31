@@ -26,6 +26,14 @@ impl Point {
     pub fn in_abyss(&self, lower_bound: i32) -> bool {
         self.y >= lower_bound
     }
+
+    pub fn blocked(&self, points: &HashSet<Self>) -> bool {
+        let point_down = Point { x: self.x, y: self.y + 1 };
+        let point_down_left = Point { x: self.x - 1, y: self.y + 1 };
+        let point_down_right = Point { x: self.x + 1, y: self.y + 1 };
+
+        points.contains(&point_down) && points.contains(&point_down_left) && points.contains(&point_down_right)
+    }
 }
 
 fn main() {
@@ -36,35 +44,43 @@ fn main() {
         fs::read_to_string(file_path).expect("Should have been able to read the file");
 
     let part1 = solve(&input);
-    // let part2 = solve2(&input);
+    let part2 = solve2(&input);
     println!("solution to part 1: {part1}");
-    // println!("solution to part 2: {part2}");
+    println!("solution to part 2: {part2}");
+}
+
+fn solve2(input: &str) -> usize {
+    // parse rock structures
+    let mut rocks = parse_rock_structures(input);
+    let floor = rocks.iter().max_by(|p1, p2| p1.y.cmp(&p2.y)).unwrap().y + 2;
+
+    // simulate falling sand
+    let origin = Point { x: 500, y: 0 };
+    let mut sand_units_at_rest = HashSet::new();
+    let mut sand_unit_in_motion = origin.clone();
+    while !origin.blocked(&sand_units_at_rest) {
+        let point_down = Point { x: sand_unit_in_motion.x, y: sand_unit_in_motion.y + 1 };
+        let point_down_left = Point { x: sand_unit_in_motion.x - 1, y: sand_unit_in_motion.y + 1 };
+        let point_down_right = Point { x: sand_unit_in_motion.x + 1, y: sand_unit_in_motion.y + 1 };
+        if !rocks.contains(&point_down) && point_down.y != floor {
+            sand_unit_in_motion = point_down;
+        } else if !rocks.contains(&point_down_left) && point_down.y != floor {
+            sand_unit_in_motion = point_down_left;
+        } else if !rocks.contains(&point_down_right) && point_down.y != floor {
+            sand_unit_in_motion = point_down_right;
+        } else {
+            sand_units_at_rest.insert(sand_unit_in_motion.clone());
+            rocks.insert(sand_unit_in_motion);
+            sand_unit_in_motion = origin.clone();
+        }
+    }
+
+    sand_units_at_rest.len() + 1
 }
 
 fn solve(input: &str) -> usize {
     // parse rock structures
-    let mut rocks = HashSet::new();
-    for line in input.lines() {
-        let line = &line.replace(" ->", "");
-        for (start, end) in line.split_whitespace().tuple_windows().map(|(x, y)| (Point::from(x), Point::from(y))) {
-            if start.x == end.x {
-                let bottom = i32::min(start.y, end.y);
-                let top = i32::max(start.y, end.y);
-                for y in bottom..=top {
-                    rocks.insert(Point { x: start.x, y });
-                }
-            } else if start.y == end.y {
-                let left = i32::min(start.x, end.x);
-                let right = i32::max(start.x, end.x);
-                for x in left..=right {
-                    rocks.insert(Point { x, y: start.y });
-                }
-            } else {
-                panic!("Rock formation not contiguous");
-            }
-        }
-    }
-
+    let mut rocks = parse_rock_structures(input);
     let lower_bound = rocks.iter().max_by(|p1, p2| p1.y.cmp(&p2.y)).unwrap().y;
 
     // simulate falling sand
@@ -91,6 +107,31 @@ fn solve(input: &str) -> usize {
     sand_units_at_rest.len()
 }
 
+fn parse_rock_structures(input: &str) -> HashSet<Point> {
+    let mut rocks = HashSet::new();
+    for line in input.lines() {
+        let line = &line.replace(" ->", "");
+        for (start, end) in line.split_whitespace().tuple_windows().map(|(x, y)| (Point::from(x), Point::from(y))) {
+            if start.x == end.x {
+                let bottom = i32::min(start.y, end.y);
+                let top = i32::max(start.y, end.y);
+                for y in bottom..=top {
+                    rocks.insert(Point { x: start.x, y });
+                }
+            } else if start.y == end.y {
+                let left = i32::min(start.x, end.x);
+                let right = i32::max(start.x, end.x);
+                for x in left..=right {
+                    rocks.insert(Point { x, y: start.y });
+                }
+            } else {
+                panic!("Rock formation not contiguous");
+            }
+        }
+    }
+    rocks
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -103,5 +144,11 @@ mod tests {
         assert_eq!(part1, 24);
     }
 
+    #[test]
+    fn test_solve_part2() {
+        let input = include_str!("../example.txt");
 
+        let part1 = solve2(&input.to_string());
+        assert_eq!(part1, 93);
+    }
 }
